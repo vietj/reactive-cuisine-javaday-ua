@@ -10,7 +10,7 @@ public class Main {
         Vertx vertx = Vertx.vertx();
 
         // TODO Deploy verticle
-        vertx.deployVerticle(GatewayVerticle.class.getName());
+        vertx.deployVerticle(com.julienviet.demo.bank.gateway.GatewayVerticle.class.getName());
     }
 
 }
