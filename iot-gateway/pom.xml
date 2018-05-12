@@ -13,8 +13,8 @@
   <artifactId>iot-gateway</artifactId>
 
   <properties>
-    <kafka.version>0.10.2.1</kafka.version>
-    <debezium.version>0.5.1</debezium.version>
+    <kafka.version>1.0.0</kafka.version>
+    <debezium.version>0.7.1</debezium.version>
   </properties>
 
   <dependencies>
