@@ -28,7 +28,7 @@
   </dependencies>
 
   <properties>
-    <vertx.launcher>me.escoffier.demo.bank.Main</vertx.launcher>
+    <vertx.launcher>reactivekitchen.bank.Main</vertx.launcher>
   </properties>
 
   <build>

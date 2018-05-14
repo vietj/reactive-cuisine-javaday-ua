@@ -45,7 +45,7 @@
   </dependencies>
 
   <properties>
-    <vertx.launcher>me.escoffier.demo.bank.gateway.Main</vertx.launcher>
+    <vertx.launcher>reactivekitchen.bank.gateway.Main</vertx.launcher>
   </properties>
 
   <build>
