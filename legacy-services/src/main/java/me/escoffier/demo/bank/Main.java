@@ -10,10 +10,10 @@ import me.escoffier.demo.bank.debt.DebtVerticle;
  */
 public class Main {
 
-    public static void main(String[] args) {
-        Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(BalanceVerticle.class.getName());
-        vertx.deployVerticle(DebtVerticle.class.getName());
-        vertx.deployVerticle(CustomerVerticle.class.getName());
-    }
+  public static void main(String[] args) {
+    Vertx vertx = Vertx.vertx();
+    vertx.deployVerticle(BalanceVerticle.class.getName());
+    vertx.deployVerticle(DebtVerticle.class.getName());
+    vertx.deployVerticle(CustomerVerticle.class.getName());
+  }
 }

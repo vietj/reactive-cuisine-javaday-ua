@@ -13,31 +13,31 @@ import java.util.UUID;
  */
 public class CustomerVerticle extends AbstractVerticle {
 
-    private Map<String, Customer> accounts = new HashMap<>();
+  private Map<String, Customer> accounts = new HashMap<>();
 
-    @Override
-    public void start() throws Exception {
-        Router router = Router.router(vertx);
+  @Override
+  public void start() throws Exception {
+    Router router = Router.router(vertx);
 
-        router.get("/customers/:id").handler(this::getAccount);
+    router.get("/customers/:id").handler(this::getAccount);
 
 
-        accounts.put("clement", new Customer().setName("clement").setAccount(UUID.randomUUID().toString()));
-        accounts.put("julien", new Customer().setName("julien").setAccount(UUID.randomUUID().toString()));
+    accounts.put("clement", new Customer().setName("clement").setAccount(UUID.randomUUID().toString()));
+    accounts.put("julien", new Customer().setName("julien").setAccount(UUID.randomUUID().toString()));
 
-        vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(9001);
+    vertx.createHttpServer()
+        .requestHandler(router::accept)
+        .listen(9001);
+  }
+
+
+  private void getAccount(RoutingContext rc) {
+    Customer customer = accounts.get(rc.pathParam("id"));
+    if (customer == null) {
+      rc.response().setStatusCode(404).end("Account not found");
+    } else {
+      rc.response().end(customer.toJson().encodePrettily());
     }
-    
-
-    private void getAccount(RoutingContext rc) {
-        Customer customer = accounts.get(rc.pathParam("id"));
-        if (customer == null) {
-            rc.response().setStatusCode(404).end("Account not found");
-        } else {
-            rc.response().end(customer.toJson().encodePrettily());
-        }
-    }
+  }
 
 }

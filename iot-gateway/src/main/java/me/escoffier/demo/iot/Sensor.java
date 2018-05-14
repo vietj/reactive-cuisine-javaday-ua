@@ -16,28 +16,28 @@ import java.util.concurrent.TimeUnit;
  */
 public class Sensor extends AbstractVerticle {
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 1883;
+  private static final String HOST = "localhost";
+  private static final int PORT = 1883;
 
-    private final String id = UUID.randomUUID().toString();
+  private final String id = UUID.randomUUID().toString();
 
-    private Random random = new Random();
+  private Random random = new Random();
 
-    @Override
-    public void start() throws Exception {
-        MqttClient client = MqttClient.create(vertx);
+  @Override
+  public void start() throws Exception {
+    MqttClient client = MqttClient.create(vertx);
 
-        client.rxConnect(PORT, HOST)
-            .flatMapPublisher(ack ->
-                Flowable.interval(1, TimeUnit.SECONDS)
-                    .flatMapSingle(l -> {
-                        JsonObject payload = new JsonObject()
-                            .put("uuid", id)
-                            .put("data", random.nextInt(100));
-                        return client
-                            .rxPublish("/data", Buffer.buffer(payload.encode()),
-                                MqttQoS.AT_MOST_ONCE, false, false);
-                    }))
-            .subscribe();
-    }
+    client.rxConnect(PORT, HOST)
+        .flatMapPublisher(ack ->
+            Flowable.interval(1, TimeUnit.SECONDS)
+                .flatMapSingle(l -> {
+                  JsonObject payload = new JsonObject()
+                      .put("uuid", id)
+                      .put("data", random.nextInt(100));
+                  return client
+                      .rxPublish("/data", Buffer.buffer(payload.encode()),
+                          MqttQoS.AT_MOST_ONCE, false, false);
+                }))
+        .subscribe();
+  }
 }

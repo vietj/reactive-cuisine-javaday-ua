@@ -7,29 +7,29 @@ import io.vertx.core.json.JsonObject;
  */
 public class Customer {
 
-    private String name;
+  private String name;
 
-    private String account;
+  private String account;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Customer setName(String name) {
-        this.name = name;
-        return this;
-    }
+  public Customer setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    public String getAccount() {
-        return account;
-    }
+  public String getAccount() {
+    return account;
+  }
 
-    public Customer setAccount(String account) {
-        this.account = account;
-        return this;
-    }
+  public Customer setAccount(String account) {
+    this.account = account;
+    return this;
+  }
 
-    public JsonObject toJson() {
-        return new JsonObject().put("name", name).put("account", account);
-    }
+  public JsonObject toJson() {
+    return new JsonObject().put("name", name).put("account", account);
+  }
 }

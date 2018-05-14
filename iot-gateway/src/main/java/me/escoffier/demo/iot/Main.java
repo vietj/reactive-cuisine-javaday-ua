@@ -13,27 +13,27 @@ import java.io.IOException;
  */
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        init();
-        
-        Vertx vertx = Vertx.vertx();
+  public static void main(String[] args) throws IOException {
+    init();
 
-        vertx.rxDeployVerticle(IOTGateway.class.getName())
-            .flatMap(x -> vertx.rxDeployVerticle(DataProcessorVerticle.class.getName()))
-            .flatMap(x -> vertx.rxDeployVerticle(WebVerticle.class.getName()))
-            .flatMap(x -> vertx.rxDeployVerticle(Sensor.class.getName(), new DeploymentOptions().setInstances(5)))
-            .subscribe();
-    }
+    Vertx vertx = Vertx.vertx();
 
-    private static void init() throws IOException {
-        File dataDir = Testing.Files
-            .createTestingDirectory("cluster");
-        dataDir.deleteOnExit();
-        new KafkaCluster()
-            .usingDirectory(dataDir)
-            .withPorts(2181, 9092)
-            .addBrokers(1)
-            .deleteDataPriorToStartup(true)
-            .startup();
-    }
+    vertx.rxDeployVerticle(IOTGateway.class.getName())
+        .flatMap(x -> vertx.rxDeployVerticle(DataProcessorVerticle.class.getName()))
+        .flatMap(x -> vertx.rxDeployVerticle(WebVerticle.class.getName()))
+        .flatMap(x -> vertx.rxDeployVerticle(Sensor.class.getName(), new DeploymentOptions().setInstances(5)))
+        .subscribe();
+  }
+
+  private static void init() throws IOException {
+    File dataDir = Testing.Files
+        .createTestingDirectory("cluster");
+    dataDir.deleteOnExit();
+    new KafkaCluster()
+        .usingDirectory(dataDir)
+        .withPorts(2181, 9092)
+        .addBrokers(1)
+        .deleteDataPriorToStartup(true)
+        .startup();
+  }
 }

@@ -14,27 +14,27 @@ import java.util.Random;
  */
 public class BalanceVerticle extends AbstractVerticle {
 
-    private Map<String, Double> balances = new HashMap<>();
-    private Random random = new Random();
+  private Map<String, Double> balances = new HashMap<>();
+  private Random random = new Random();
 
 
-    @Override
-    public void start() throws Exception {
-        Router router = Router.router(vertx);
-        router.get("/balance/:account").handler(this::getBalance);
+  @Override
+  public void start() throws Exception {
+    Router router = Router.router(vertx);
+    router.get("/balance/:account").handler(this::getBalance);
 
-        vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(9003);
+    vertx.createHttpServer()
+        .requestHandler(router::accept)
+        .listen(9003);
+  }
+
+  private void getBalance(RoutingContext rc) {
+    String account = rc.pathParam("account");
+    if (!balances.containsKey(account)) {
+      balances.put(account, (random.nextBoolean() ? -1 : 1) * random.nextDouble() * 1000);
     }
-
-    private void getBalance(RoutingContext rc) {
-        String account = rc.pathParam("account");
-        if (!balances.containsKey(account)) {
-            balances.put(account, (random.nextBoolean() ? -1 : 1) * random.nextDouble() * 1000);
-        }
-        rc.response().end(new JsonObject()
-            .put("account", account)
-            .put("balance", balances.get(account)).encode());
-    }
+    rc.response().end(new JsonObject()
+        .put("account", account)
+        .put("balance", balances.get(account)).encode());
+  }
 }

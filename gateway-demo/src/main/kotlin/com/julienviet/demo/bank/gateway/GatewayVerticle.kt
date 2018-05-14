@@ -58,9 +58,9 @@ class GatewayVerticle : AbstractVerticle() {
     val balance = balanceResp.bodyAsJsonObject().getDouble("balance")
     val json = json {
       obj(
-        "account" to account,
-        "debt" to debt,
-        "balance" to balance
+          "account" to account,
+          "debt" to debt,
+          "balance" to balance
       )
     }
 

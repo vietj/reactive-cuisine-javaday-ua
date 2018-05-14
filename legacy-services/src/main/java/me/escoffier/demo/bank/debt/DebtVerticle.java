@@ -13,26 +13,26 @@ import java.util.Map;
  */
 public class DebtVerticle extends AbstractVerticle {
 
-    private Map<String, Double> levels = new HashMap<>();
+  private Map<String, Double> levels = new HashMap<>();
 
 
-    @Override
-    public void start() throws Exception {
-        Router router = Router.router(vertx);
-        router.get("/debt/:account").handler(this::getDebt);
+  @Override
+  public void start() throws Exception {
+    Router router = Router.router(vertx);
+    router.get("/debt/:account").handler(this::getDebt);
 
-        vertx.createHttpServer()
-            .requestHandler(router::accept)
-            .listen(9002);
+    vertx.createHttpServer()
+        .requestHandler(router::accept)
+        .listen(9002);
+  }
+
+  private void getDebt(RoutingContext rc) {
+    String account = rc.pathParam(":account");
+
+    if (!levels.containsKey(account)) {
+      levels.put(account, Math.random() * 100);
     }
+    rc.response().end(new JsonObject().put("level", levels.get(account)).encode());
 
-    private void getDebt(RoutingContext rc) {
-        String account = rc.pathParam(":account");
-
-        if (!levels.containsKey(account)) {
-            levels.put(account, Math.random() * 100);
-        }
-        rc.response().end(new JsonObject().put("level", levels.get(account)).encode());
-
-    }
+  }
 }
