@@ -28,8 +28,12 @@ public class DataProcessorVerticle extends AbstractVerticle {
 
     stream
         .map(json -> json.getInteger("data"))
-        .window(5)
-        .flatMap(MathFlowable::averageDouble)
+        .buffer(5)
+        .map(list -> list
+            .stream()
+            .mapToDouble(a -> a)
+            .average()
+            .orElse(0))
         .subscribe(
             average -> vertx.eventBus().publish("average", average)
         );
