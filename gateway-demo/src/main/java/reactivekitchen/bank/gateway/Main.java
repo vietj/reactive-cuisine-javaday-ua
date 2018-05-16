@@ -7,6 +7,7 @@ public class Main {
 
   public static void main(String[] args) {
     // TODO Create Vert.x
+
     Vertx vertx = Vertx.vertx();
 
     // TODO Deploy verticle

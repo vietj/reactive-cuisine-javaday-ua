@@ -24,44 +24,43 @@ public class GatewayVerticle extends AbstractVerticle {
     balance = Services.getBalanceService(vertx);
 
     Router router = Router.router(vertx);
-    // TODO GET / -> compute
     router.get("/").handler(this::compute);
+    // TODO GET / -> compute
 
-    vertx.createHttpServer()
-        .requestHandler(router::accept)
-        .listen(8080);
-
+    vertx.createHttpServer().requestHandler(router::accept).listen(8080);
   }
 
   private void compute(RoutingContext rc) {
 
-    // TODO Get customer account ("/customers/clement") -> account
-    Single<String> single = service.get("/customers/clement").rxSend()
-        .map(HttpResponse::bodyAsJsonObject)
-        .map(json -> json.getString("account"));
+    Single<JsonObject> s = service.get("/customers/clement")
+        .rxSend()
+        .map(HttpResponse::bodyAsJsonObject).flatMap(json -> {
+          String account = json.getString("account");
 
-    single.flatMap(account -> {
-      Single<Double> de = debt.get("/debt/" + account).rxSend()
-          .map(HttpResponse::bodyAsJsonObject)
-          .map(json -> json.getDouble("level"));
-      Single<Double> ba = balance.get("/balance/" + account).rxSend()
-          .map(HttpResponse::bodyAsJsonObject)
-          .map(json -> json.getDouble("balance"));
+          Single<Double> s1 = balance.get("/balance/" + account)
+              .rxSend()
+              .map(HttpResponse::bodyAsJsonObject)
+              .map(j -> j.getDouble("balance"));
 
-      return Single.zip(de, ba, (d, b) ->
-          new JsonObject()
+          Single<Double> s2 = debt.get("/debt/" + account)
+              .rxSend()
+              .map(HttpResponse::bodyAsJsonObject)
+              .map(j -> j.getDouble("level"));
+
+
+          return Single.zip(s1, s2, (balance, debt) -> new JsonObject()
               .put("account", account)
-              .put("debt", d)
-              .put("balance", b));
-    }).subscribe((res, err) -> {
-      if (err != null) {
-        rc.fail(err);
-      } else {
-        rc.response().end(res.encodePrettily());
-      }
+              .put("balance", balance)
+              .put("debt", debt));
+        });
+    s.subscribe(json -> {
+      rc.response().end(json.encodePrettily());
+    }, err -> {
+      err.printStackTrace();
+      rc.response().end("ERROR " + err.getMessage());
     });
 
-
+    // TODO Get customer account ("/customers/clement") -> account
     // TODO Get balance /balance/$account -> balance
     // TODO Get debt /debt/$account -> level
 

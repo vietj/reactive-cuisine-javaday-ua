@@ -5,8 +5,7 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
-import io.vertx.kotlin.core.json.json
-import io.vertx.kotlin.core.json.obj
+import io.vertx.kotlin.core.json.JsonObject
 import io.vertx.kotlin.coroutines.awaitResult
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.experimental.launch
@@ -24,46 +23,41 @@ class GatewayRevisitVerticle : AbstractVerticle() {
     debt = Services.getDebtService(vertx)
     balance = Services.getBalanceService(vertx)
 
-    val router = Router.router(vertx)
     // TODO GET / -> compute
-    router.get("/").handler({
+    val router = Router.router(vertx)
+
+    router.get("/").handler({ rc ->
       launch(vertx.dispatcher()) {
-        try {
-          compute(it)
-        } catch (e: Exception) {
-          e.printStackTrace()
-        }
+        compute(rc)
       }
     })
 
-    vertx.createHttpServer()
-        .requestHandler { router.accept(it) }
-        .listen(8080)
+    vertx.createHttpServer().requestHandler({
+      req -> router.handle(req)
+    }).listen(8080)
+
   }
 
   private suspend fun compute(rc: io.vertx.ext.web.RoutingContext) {
 
-    val accountResp = awaitResult<HttpResponse<Buffer>> {
-      service
-          .get("/customers/clement")
-          .send(it)
-    }
+    // TODO Get customer account ("/customers/clement") -> account
+    // TODO Get balance /balance/$account -> balance
+    // TODO Get debt /debt/$account -> level
 
-    val account = accountResp.bodyAsJsonObject().getString("account")
+    val resp = awaitResult<HttpResponse<Buffer>> { service.get("/customers/clement").send(it) }
 
-    val debtResp = awaitResult<HttpResponse<Buffer>> { debt.get("/debt/" + account).send(it) }
-    val balanceResp = awaitResult<HttpResponse<Buffer>> { balance.get("/balance/" + account).send(it) }
+    val account = resp.bodyAsJsonObject().getString("account");
 
-    val debt = debtResp.bodyAsJsonObject().getDouble("level")
-    val balance = balanceResp.bodyAsJsonObject().getDouble("balance")
-    val json = json {
-      obj(
-          "account" to account,
-          "debt" to debt,
-          "balance" to balance
-      )
-    }
+    val resp1 = awaitResult<HttpResponse<Buffer>> { balance.get("/balance/$account").send(it) }
+    val resp2 = awaitResult<HttpResponse<Buffer>> { debt.get("/debt/$account").send(it) }
 
-    rc.response().end(json.encodePrettily())
+    val debt = resp2.bodyAsJsonObject().getDouble("level")
+    val balance = resp1.bodyAsJsonObject().getDouble("balance")
+
+    rc.response().end(JsonObject()
+        .put("account", account)
+        .put("debt", debt)
+        .put("balance", balance)
+        .encodePrettily())
   }
 }
